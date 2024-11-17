@@ -9,7 +9,7 @@ app.use(cors());
 
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!');
+  res.send('Welcome to my first express server!');
 });
 
 export default app;
