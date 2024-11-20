@@ -63,6 +63,7 @@ const localGuardianValidationSchema = z.object({
 // Student Schema
 const studentValidationSchema = z.object({
   id: z.string().nonempty('ID is required.'),
+  password: z.string().max(20),
   name: userNameValidationSchema.refine((value) => value, {
     message: 'Student name is required.',
   }),
@@ -97,6 +98,7 @@ const studentValidationSchema = z.object({
   guardian: guardianValidationSchema,
   localGuardian: localGuardianValidationSchema,
   isActive: z.enum(['active', 'block']).default('active'),
+  isDeleted: z.boolean(),
 });
 
 export default studentValidationSchema;

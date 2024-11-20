@@ -1,13 +1,17 @@
 import { Schema, model } from 'mongoose';
 import {
-  Guardian,
-  LocalGuardian,
-  Student,
-  UserName,
+  TGuardian,
+  TLocalGuardian,
+  TStudent,
+  StudentMethods,
+  StudentModel,
+  TUserName,
 } from './student.interface';
 import validator from 'validator';
+import bcrypt from 'bcrypt';
+import config from '../../config';
 
-const userNameSchema = new Schema<UserName>({
+const userNameSchema = new Schema<TUserName>({
   firstName: {
     type: String,
     required: [true, 'First name is required.'],
@@ -36,7 +40,7 @@ const userNameSchema = new Schema<UserName>({
   },
 });
 
-const guardianSchema = new Schema<Guardian>({
+const guardianSchema = new Schema<TGuardian>({
   fatherName: {
     type: String,
     required: [true, 'Father name is required'],
@@ -69,7 +73,7 @@ const guardianSchema = new Schema<Guardian>({
   },
 });
 
-const localGuardianSchema = new Schema<LocalGuardian>({
+const localGuardianSchema = new Schema<TLocalGuardian>({
   name: { type: String, required: [true, 'Local gurdian name is required.'] },
   email: { type: String, required: [true, 'Local guardian email is required'] },
   occupation: {
@@ -87,53 +91,125 @@ const localGuardianSchema = new Schema<LocalGuardian>({
   },
 });
 
-const studentSchema = new Schema<Student>({
-  id: { type: String, required: true, unique: true },
-  name: { type: userNameSchema, required: [true, 'Student name is required.'] },
-  gender: {
-    type: String,
-    enum: {
-      values: ['male', 'female'],
-      message: '{VALUE} is not supported.',
+const studentSchema = new Schema<TStudent, StudentModel>(
+  {
+    id: { type: String, required: true, unique: true },
+    password: {
+      type: String,
+      required: [true, 'Password is required'],
+      maxlength: 20,
     },
-    required: true,
+    name: {
+      type: userNameSchema,
+      required: [true, 'Student name is required.'],
+    },
+    gender: {
+      type: String,
+      enum: {
+        values: ['male', 'female'],
+        message: '{VALUE} is not supported.',
+      },
+      required: true,
+    },
+    dateOfBarth: { type: String },
+    email: {
+      type: String,
+      required: [true, 'Email is required.'],
+      unique: true,
+      validate: {
+        validator: (value: string) => validator.isEmail(value),
+        message: '{VALUE} is not a valid email.',
+      },
+    },
+    avatar: { type: String },
+    contactNumber: {
+      type: String,
+      required: [true, 'Contact number is required.'],
+      maxlength: [16, 'Contact number can not be more then 16 carecters.'],
+    },
+    emergencyContactNo: {
+      type: String,
+      required: [true, 'Emmergency contact number is required.'],
+      maxlength: [16, 'Contact number can not be more then 16 carecters.'],
+    },
+    bloodGroupe: {
+      type: String,
+      enum: ['A+', 'A-', 'AB+', 'AB-', 'B+', 'B-', 'O+', 'O-'],
+    },
+    presentAddress: {
+      type: String,
+      required: [true, 'Present address is required.'],
+    },
+    parmanentAddress: {
+      type: String,
+      required: [true, 'Parmanent address is required.'],
+    },
+    guardian: { type: guardianSchema, required: true },
+    localGuardian: { type: localGuardianSchema, required: true },
+    isActive: { type: String, enum: ['active', 'block'], default: 'active' },
+    isDeleted: { type: Boolean, default: false },
   },
-  dateOfBarth: { type: String },
-  email: {
-    type: String,
-    required: [true, 'Email is required.'],
-    unique: true,
-    validate: {
-      validator: (value: string) => validator.isEmail(value),
-      message: '{VALUE} is not a valid email.'
+  {
+    toJSON: {
+      virtuals: true,
     },
   },
-  avatar: { type: String },
-  contactNumber: {
-    type: String,
-    required: [true, 'Contact number is required.'],
-    maxlength: [16, 'Contact number can not be more then 16 carecters.'],
-  },
-  emergencyContactNo: {
-    type: String,
-    required: [true, 'Emmergency contact number is required.'],
-    maxlength: [16, 'Contact number can not be more then 16 carecters.'],
-  },
-  bloodGroupe: {
-    type: String,
-    enum: ['A+', 'A-', 'AB+', 'AB-', 'B+', 'B-', 'O+', 'O-'],
-  },
-  presentAddress: {
-    type: String,
-    required: [true, 'Present address is required.'],
-  },
-  parmanentAddress: {
-    type: String,
-    required: [true, 'Parmanent address is required.'],
-  },
-  guardian: { type: guardianSchema, required: true },
-  localGuardian: { type: localGuardianSchema, required: true },
-  isActive: { type: String, enum: ['active', 'block'], default: 'active' },
+);
+
+// Virtual
+studentSchema.virtual('fullName').get(function () {
+  return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
 });
 
-export const StudentModel = model<Student>('Student', studentSchema);
+// Pre save middleware / hook
+studentSchema.pre('save', async function (next) {
+  // data save howr aghe password hash korbo.
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
+  const user = this;
+  user.password = await bcrypt.hash(
+    user.password,
+    Number(config.bcrypt_salt_rounds),
+  );
+
+  next();
+  // console.log(this, 'Pre hook: for save data');
+});
+
+// post save middleware / hook
+studentSchema.post('save', async function (doc, next) {
+  // data save howr pore password value empty korbo
+  doc.password = '';
+  // console.log(this, 'post hook: after save data');
+  next();
+});
+
+// query middleware
+studentSchema.pre('find', async function (next) {
+  // console.log(this);
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
+
+studentSchema.pre('findOne', async function (next) {
+  this.findOne({ isDeleted: { $ne: true } });
+  next();
+});
+
+studentSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
+  next();
+});
+
+// Creating a custom static method
+studentSchema.statics.isUserExists = async function (id: string) {
+  const exsistingUser = await Student.findOne({ id });
+  return exsistingUser;
+};
+
+// Creating a custom instance method
+// studentSchema.methods.isUserExists = async function (id: string) {
+//   const exsistingUser = await Student.findOne({ id });
+//   return exsistingUser;
+// };
+
+export const Student = model<TStudent, StudentModel>('Student', studentSchema);
