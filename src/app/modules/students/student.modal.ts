@@ -3,8 +3,7 @@ import {
   TGuardian,
   TLocalGuardian,
   TStudent,
-  StudentMethods,
-  StudentModel,
+  StudentModal,
   TUserName,
 } from './student.interface';
 import validator from 'validator';
@@ -91,9 +90,15 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
   },
 });
 
-const studentSchema = new Schema<TStudent, StudentModel>(
+const studentSchema = new Schema<TStudent, StudentModal>(
   {
     id: { type: String, required: true, unique: true },
+    user: {
+      type: Schema.Types.ObjectId,
+      required: [true, 'User id is required.'],
+      unique: true,
+      ref: 'User',
+    },
     password: {
       type: String,
       required: [true, 'Password is required'],
@@ -146,7 +151,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
     },
     guardian: { type: guardianSchema, required: true },
     localGuardian: { type: localGuardianSchema, required: true },
-    isActive: { type: String, enum: ['active', 'block'], default: 'active' },
     isDeleted: { type: Boolean, default: false },
   },
   {
@@ -212,4 +216,4 @@ studentSchema.statics.isUserExists = async function (id: string) {
 //   return exsistingUser;
 // };
 
-export const Student = model<TStudent, StudentModel>('Student', studentSchema);
+export const Student = model<TStudent, StudentModal>('Student', studentSchema);
