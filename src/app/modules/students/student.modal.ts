@@ -7,8 +7,6 @@ import {
   TUserName,
 } from './student.interface';
 import validator from 'validator';
-import bcrypt from 'bcrypt';
-import config from '../../config';
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -99,11 +97,7 @@ const studentSchema = new Schema<TStudent, StudentModal>(
       unique: true,
       ref: 'User',
     },
-    password: {
-      type: String,
-      required: [true, 'Password is required'],
-      maxlength: 20,
-    },
+    
     name: {
       type: userNameSchema,
       required: [true, 'Student name is required.'],
@@ -165,28 +159,6 @@ studentSchema.virtual('fullName').get(function () {
   return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
 });
 
-// Pre save middleware / hook
-studentSchema.pre('save', async function (next) {
-  // data save howr aghe password hash korbo.
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
-  const user = this;
-  user.password = await bcrypt.hash(
-    user.password,
-    Number(config.bcrypt_salt_rounds),
-  );
-
-  next();
-  // console.log(this, 'Pre hook: for save data');
-});
-
-// post save middleware / hook
-studentSchema.post('save', async function (doc, next) {
-  // data save howr pore password value empty korbo
-  doc.password = '';
-  // console.log(this, 'post hook: after save data');
-  next();
-});
-
 // query middleware
 studentSchema.pre('find', async function (next) {
   // console.log(this);
@@ -209,11 +181,5 @@ studentSchema.statics.isUserExists = async function (id: string) {
   const exsistingUser = await Student.findOne({ id });
   return exsistingUser;
 };
-
-// Creating a custom instance method
-// studentSchema.methods.isUserExists = async function (id: string) {
-//   const exsistingUser = await Student.findOne({ id });
-//   return exsistingUser;
-// };
 
 export const Student = model<TStudent, StudentModal>('Student', studentSchema);

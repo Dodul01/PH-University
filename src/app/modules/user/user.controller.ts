@@ -1,31 +1,29 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { UserServices } from './user.service';
+import sendResponse from '../../utils/sendResponse';
 
-const createStudent = async (req: Request, res: Response) => {
+const createStudent = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    // Data comming from user / frontend
     const { password, student: studentData } = req.body;
 
-    // Data validation using Zod
-    // const zodParseData = studentValidationSchema.parse(studentData);
-    // call service function to send this data
     const result = await UserServices.createStudentIntoDB(
       password,
       studentData,
     );
 
-    // send response
-    res.status(200).json({
-      sucess: true,
+
+    sendResponse(res, {
+      success: true,
+      statusCode: 200,
       message: 'Student is created sucessfully',
       data: result,
     });
-  } catch (error: any) {
-    res.status(500).json({
-      sucess: false,
-      message: error.message || 'Something went wrong.',
-      error: error,
-    });
+  } catch (error) {
+    next(error);
   }
 };
 
