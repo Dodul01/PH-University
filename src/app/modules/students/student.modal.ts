@@ -110,7 +110,7 @@ const studentSchema = new Schema<TStudent, StudentModal>(
       },
       required: true,
     },
-    dateOfBarth: { type: String },
+    dateOfBarth: { type: Date },
     email: {
       type: String,
       required: [true, 'Email is required.'],

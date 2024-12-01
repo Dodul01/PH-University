@@ -71,7 +71,7 @@ const createStudentValidationSchema = z.object({
       gender: z.enum(['male', 'female'], {
         errorMap: () => ({ message: '{VALUE} is not supported.' }),
       }),
-      dateOfBarth: z.string().optional(),
+      dateOfBarth: z.date().optional(),
       email: z
         .string()
         .trim()

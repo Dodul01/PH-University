@@ -31,7 +31,7 @@ export type TStudent = {
   gender: 'male' | 'female'; // union type literal
   email: string;
   avatar?: string; // optional type
-  dateOfBarth?: string;
+  dateOfBarth?: Date;
   contactNumber: string;
   emergencyContactNo: string;
   bloodGroupe?: 'A+' | 'A-' | 'B+' | 'B-' | 'O+' | 'O-' | 'AB+' | 'AB-';
