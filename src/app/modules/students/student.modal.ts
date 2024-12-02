@@ -97,7 +97,7 @@ const studentSchema = new Schema<TStudent, StudentModal>(
       unique: true,
       ref: 'User',
     },
-    
+
     name: {
       type: userNameSchema,
       required: [true, 'Student name is required.'],
@@ -145,6 +145,7 @@ const studentSchema = new Schema<TStudent, StudentModal>(
     },
     guardian: { type: guardianSchema, required: true },
     localGuardian: { type: localGuardianSchema, required: true },
+    admissionSemester: { type: Schema.Types.ObjectId, ref: 'AcademicSemester' },
     isDeleted: { type: Boolean, default: false },
   },
   {
