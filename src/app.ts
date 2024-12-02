@@ -8,7 +8,7 @@ const app: Application = express();
 
 /**  PRACTICE TASK
  * 1 [DONE] Create a find route for all academic semesters. / [GET]
- * 2 [] Create a find route for single academic semesters route using _id. /:_id [GET]
+ * 2 [DONE] Create a find route for single academic semesters route using _id. /:_id [GET]
  * 3 Create an update route for updating a single academic semesters route using _id. /:_id [PATCH]
  * */
 
