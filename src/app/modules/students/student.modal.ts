@@ -146,6 +146,7 @@ const studentSchema = new Schema<TStudent, StudentModal>(
     guardian: { type: guardianSchema, required: true },
     localGuardian: { type: localGuardianSchema, required: true },
     admissionSemester: { type: Schema.Types.ObjectId, ref: 'AcademicSemester' },
+    academicDepartment: { type: Schema.Types.ObjectId, ref: 'AcademicDepartment' },
     isDeleted: { type: Boolean, default: false },
   },
   {
