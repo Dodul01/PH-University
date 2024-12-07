@@ -25,7 +25,7 @@ academicDepartmentSchama.pre('save', async function (next) {
   });
 
   if (isDepartmentExsist) {
-    throw new AppError(403, 'This department is already exsist.');
+    throw new AppError(400, 'This department is already exsist.');
   }
 
   next();
