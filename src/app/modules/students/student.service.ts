@@ -36,7 +36,6 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
     .fields();
 
   const result = await studentQuery.modelQuery;
-  console.log(studentQuery);
 
   return result;
 };
