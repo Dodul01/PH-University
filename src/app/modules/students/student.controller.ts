@@ -1,13 +1,15 @@
 import { StudentServices } from './student.service';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
+import { RequestHandler } from 'express';
 
-const getAllStudents = catchAsync(async (req, res) => {
-  const result = await StudentServices.getAllStudentsFromDB();
-
-  res.status(200).json({
-    sucess: true,
-    message: 'Students data retrieved sucessfully.',
+const getAllStudents: RequestHandler = catchAsync(async (req, res) => {
+  const result = await StudentServices.getAllStudentsFromDB(req.query);
+  
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Student are retrieved succesfully',
     data: result,
   });
 });
