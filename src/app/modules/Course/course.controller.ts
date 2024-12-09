@@ -76,6 +76,7 @@ const assignFacultiesWithCourse = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 const removeFacultiesFromCourse = catchAsync(async (req, res) => {
   const { courseId } = req.params;
   const { faculties } = req.body;
