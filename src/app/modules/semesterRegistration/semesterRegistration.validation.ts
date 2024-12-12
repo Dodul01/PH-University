@@ -25,7 +25,7 @@ const updateSemesterRegistrationValidationSchema = z.object({
   }),
 });
 
-export const semesterRegistrationValidation = {
+export const SemesterRegistrationValidations = {
   createSemesterRegistrationValidationSchema,
   updateSemesterRegistrationValidationSchema,
 };

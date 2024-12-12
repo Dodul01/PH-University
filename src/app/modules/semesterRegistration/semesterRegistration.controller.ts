@@ -91,5 +91,5 @@ export const SemesterRegistrationController = {
   getAllSemesterRegistrations,
   getSingleSemesterRegistration,
   updateSemesterRegistration,
-//   deleteSemesterRegistration,
+  //   deleteSemesterRegistration,
 };

@@ -11,7 +11,7 @@ import { SemesterRegistration } from './semesterRegistration.model';
 const createSemesterRegistrationIntoDB = async (
   payload: TSemesterRegistration,
 ) => {
-  /** IMPORTENT STEPST THAT NEED TO FOLLOW
+  /**
    * Step1: Check if there any registered semester that is already 'UPCOMING'|'ONGOING'
    * Step2: Check if the semester is exist
    * Step3: Check if the semester is already registered!
@@ -21,7 +21,7 @@ const createSemesterRegistrationIntoDB = async (
   const academicSemester = payload?.academicSemester;
 
   //check if there any registered semester that is already 'UPCOMING'|'ONGOING'
-  const isThereAnyUpcomingOrOngoingSemester =
+  const isThereAnyUpcomingOrOngoingSEmester =
     await SemesterRegistration.findOne({
       $or: [
         { status: RegistrationStatus.UPCOMING },
@@ -29,19 +29,21 @@ const createSemesterRegistrationIntoDB = async (
       ],
     });
 
-  if (isThereAnyUpcomingOrOngoingSemester) {
+  if (isThereAnyUpcomingOrOngoingSEmester) {
     throw new AppError(
       400,
-      `There is aready an ${isThereAnyUpcomingOrOngoingSemester.status} registered semester !`,
+      `There is aready an ${isThereAnyUpcomingOrOngoingSEmester.status} registered semester !`,
     );
   }
-
   // check if the semester is exist
   const isAcademicSemesterExists =
     await AcademicSemester.findById(academicSemester);
 
   if (!isAcademicSemesterExists) {
-    throw new AppError(404, 'This academic semester not found !');
+    throw new AppError(
+      404,
+      'This academic semester not found !',
+    );
   }
 
   // check if the semester is already registered!
@@ -50,9 +52,17 @@ const createSemesterRegistrationIntoDB = async (
   });
 
   if (isSemesterRegistrationExists) {
-    throw new AppError(409, 'This semester is already registered!');
+    throw new AppError(
+      409,
+      'This semester is already registered!',
+    );
   }
+
+  const result = await SemesterRegistration.create(payload);
+  return result;
 };
+
+
 const getAllSemesterRegistrationsFromDB = async (
   query: Record<string, unknown>,
 ) => {
@@ -138,9 +148,9 @@ const updateSemesterRegistrationIntoDB = async (
   return result;
 };
 // const deleteSemesterRegistrationFromDB = async (id: string) => {
-//   /** 
+//   /**
 //     * Step1: Delete associated offered courses.
-//     * Step2: Delete semester registraton when the status is 
+//     * Step2: Delete semester registraton when the status is
 //     'UPCOMING'.
 //     **/
 
@@ -207,5 +217,5 @@ export const SemesterRegistrationService = {
   getAllSemesterRegistrationsFromDB,
   getSingleSemesterRegistrationsFromDB,
   updateSemesterRegistrationIntoDB,
-//   deleteSemesterRegistrationFromDB,
+  //   deleteSemesterRegistrationFromDB,
 };
