@@ -10,15 +10,10 @@ const app: Application = express();
 app.use(express.json());
 app.use(cors());
 
-
 // TODO:
 /**
- *  [DONE] Faculty;
- *  Admin
- *  Course
- * 
- * 
-*/
+ *
+ */
 
 // application routes
 app.use('/app/v1', router);
